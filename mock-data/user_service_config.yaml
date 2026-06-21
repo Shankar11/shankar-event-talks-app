@@ -1,0 +1,24 @@
+# User Service Configuration
+
+service:
+  name: user-service
+  environment: development
+  port: 8080
+  debug: true
+
+database:
+  host: localhost
+  port: 5432
+  username: postgres
+  password: super_secret_db_password_placeholder
+  database_name: user_service_db
+  pool_size: 10
+  timeout_seconds: 30
+
+api_keys:
+  payment_gateway: stripe_pk_test_placeholder_key_abc123
+  email_service: sendgrid_api_placeholder_key_xyz789
+
+logging:
+  level: INFO
+  format: json

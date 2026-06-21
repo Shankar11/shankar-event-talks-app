@@ -1,0 +1,23 @@
+[
+  {
+    "reviewId": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+    "productId": "SMARTPHONE_X",
+    "rating": 5,
+    "reviewText": "I am absolutely blown away by the battery life on this new phone. It easily lasts two full days of heavy usage, and the screen display is incredibly sharp and bright even under direct sunlight. Highly recommend it!",
+    "reviewDate": "2026-06-15"
+  },
+  {
+    "reviewId": "7c8e9b4a-3f1d-4e8c-8c7a-9b4e5d6c7f8a",
+    "productId": "SMARTPHONE_X",
+    "rating": 3,
+    "reviewText": "The phone has an amazing camera and premium build quality, but the software feels a bit bloated with pre-installed apps. Additionally, it tends to get noticeably warm during intensive gaming sessions. Decent purchase overall.",
+    "reviewDate": "2026-06-18"
+  },
+  {
+    "reviewId": "3b5d6f7a-8e9c-4b2a-1c3d-5e7f9a8b0c2d",
+    "productId": "SMARTPHONE_X",
+    "rating": 2,
+    "reviewText": "Honestly quite disappointed with the lag on the face unlock feature. The under-display fingerprint sensor is also quite slow and frequently fails to recognize my print. Not worth the high price tag in my opinion.",
+    "reviewDate": "2026-06-20"
+  }
+]
