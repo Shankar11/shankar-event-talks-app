@@ -28,6 +28,7 @@ Checklist of project setup, requirements implementation, environment configurati
   - [x] Implement animated loading skeletons during fetches
   - [x] Implement Floating Selection Bar / Selected updates drawer
   - [x] Build Tweet Composer modal with character limit validation and X/Twitter intent sharing
+  - [x] Add "Copy to Clipboard" button on cards and "Export to CSV" button next to refresh control
 
 - [x] **Environment Configuration**
   - [x] Build local virtual environment (`.venv`) using `uv venv`
