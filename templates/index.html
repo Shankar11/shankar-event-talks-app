@@ -879,6 +879,148 @@
             color: var(--text-secondary);
             max-width: 400px;
         }
+
+        /* Theme Toggle Button Style */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .theme-toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 600px) {
+            .theme-toggle-btn {
+                top: 1rem;
+                right: 1rem;
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        /* Light Mode CSS Overrides */
+        body.light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-hover: rgba(0, 0, 0, 0.04);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --shadow-glow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+            
+            --cat-feature-bg: rgba(16, 185, 129, 0.1);
+            --cat-feature-text: #059669;
+            --cat-feature-border: rgba(16, 185, 129, 0.2);
+            
+            --cat-announcement-bg: rgba(59, 130, 246, 0.1);
+            --cat-announcement-text: #2563eb;
+            --cat-announcement-border: rgba(59, 130, 246, 0.2);
+            
+            --cat-issue-bg: rgba(220, 38, 38, 0.1);
+            --cat-issue-text: #dc2626;
+            --cat-issue-border: rgba(220, 38, 38, 0.2);
+
+            --cat-deprecation-bg: rgba(217, 119, 6, 0.1);
+            --cat-deprecation-text: #d97706;
+            --cat-deprecation-border: rgba(217, 119, 6, 0.2);
+
+            --cat-default-bg: rgba(124, 58, 237, 0.1);
+            --cat-default-text: #7c3aed;
+            --cat-default-border: rgba(124, 58, 237, 0.2);
+        }
+
+        body.light-mode .glow-orb {
+            opacity: 0.04;
+        }
+
+        body.light-mode h1 {
+            background: linear-gradient(to right, #0f172a, #475569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        body.light-mode .search-input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #0f172a;
+        }
+
+        body.light-mode .card-body code {
+            background: rgba(0, 0, 0, 0.05);
+            color: #d91b5c;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .selected-drawer {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 40px rgba(148, 163, 184, 0.2);
+        }
+
+        body.light-mode .drawer-text {
+            color: #0f172a;
+        }
+
+        body.light-mode .modal-container {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .tweet-composer-area {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        body.light-mode .tweet-textarea {
+            color: #0f172a;
+        }
+
+        body.light-mode .modal-header h3 {
+            color: #0f172a;
+        }
+
+        body.light-mode .modal-close {
+            color: #475569;
+        }
+
+        body.light-mode .modal-close:hover {
+            color: #0f172a;
+        }
+
+        body.light-mode .modal-footer {
+            background: rgba(0, 0, 0, 0.02);
+            border-top-color: rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-mode .btn-cancel {
+            background: rgba(0, 0, 0, 0.05);
+            color: #0f172a;
+        }
+
+        body.light-mode .btn-cancel:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
     </style>
 </head>
 <body>
@@ -887,6 +1029,9 @@
     <div class="glow-orb orb-3"></div>
 
     <header>
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle light and dark themes">
+            <i class="fa-solid fa-sun" id="themeIcon"></i>
+        </button>
         <div class="logo-container">
             <i class="fa-solid fa-database logo-icon"></i>
             <h1>BigQuery Release Explorer</h1>
@@ -1434,6 +1579,30 @@
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && tweetModal.classList.contains('show')) {
                 closeModal();
+            }
+        });
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Check user configuration preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            themeIcon.className = 'fa-solid fa-moon';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            
+            if (isLight) {
+                themeIcon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                themeIcon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
             }
         });
 
