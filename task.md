@@ -11,6 +11,8 @@ Checklist of project setup, requirements implementation, environment configurati
   - [x] Create [requirements.txt](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/requirements.txt) listing server dependencies
   - [x] Create [.gitignore](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/.gitignore) to exclude local cache and environment files
   - [x] Create [project_architecture_guide.md](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/project_architecture_guide.md) detailing architecture, component breakdown, and request-response flow lifecycle
+  - [x] Create [README.md](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/README.md) for quick setup and project layout overview
+
 
 - [x] **Backend Implementation ([app.py](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/app.py))**
   - [x] Connect feed parser and BeautifulSoup parsing engine
