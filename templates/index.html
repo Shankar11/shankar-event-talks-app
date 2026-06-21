@@ -880,6 +880,54 @@
             max-width: 400px;
         }
 
+        /* Card Body Table Responsiveness */
+        .card-body table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            border: 1px solid var(--glass-border);
+        }
+
+        .card-body th, .card-body td {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--glass-border);
+            text-align: left;
+        }
+
+        /* Results Bar Styles */
+        .results-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0 0.25rem;
+        }
+
+        /* Search Highlight Styles */
+        .search-highlight {
+            background: rgba(59, 130, 246, 0.35);
+            color: inherit;
+            padding: 0.05rem 0.2rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        body.light-mode .search-highlight {
+            background: rgba(251, 191, 36, 0.4);
+        }
+
+        /* Selection Click Hint */
+        .card {
+            cursor: pointer;
+        }
+        .card a, .card button, .card label {
+            cursor: default;
+        }
+
         /* Theme Toggle Button Style */
         .theme-toggle-btn {
             position: absolute;
@@ -1067,6 +1115,11 @@
             </div>
         </section>
 
+        <!-- Results Bar -->
+        <div class="results-bar">
+            <span id="resultsCount">Showing 0 of 0 updates</span>
+        </div>
+
         <!-- Releases Feed -->
         <section class="feed-container" id="feedContainer">
             <!-- Skeleton cards shown on load -->
@@ -1133,7 +1186,10 @@
                 </p>
                 <div class="tweet-composer-area">
                     <textarea class="tweet-textarea" id="tweetTextarea" maxlength="1000" placeholder="What's happening?"></textarea>
-                    <div class="tweet-counter-row">
+                    <div class="tweet-counter-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <button class="btn-cancel" id="btnAutoTrim" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; display: none;" onclick="autoTrimTweet()">
+                            <i class="fa-solid fa-scissors"></i> Auto-Trim to Fit
+                        </button>
                         <span id="charCounter">0 / 280</span>
                     </div>
                 </div>
@@ -1230,8 +1286,13 @@
             `).join('');
         }
 
-        // Show Error Card
+        // Show Error Card (Non-Destructive)
         function showError(message) {
+            if (releases.length > 0) {
+                showToast(`Failed to refresh: ${message}`, 'error');
+                return;
+            }
+            
             feedContainer.innerHTML = `
                 <div class="empty-state" style="border-color: rgba(239, 68, 68, 0.3);">
                     <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i>
@@ -1287,9 +1348,81 @@
             return textToSearch.includes(searchQuery.toLowerCase());
         }
 
+        // Relative date string helper
+        function getRelativeTimeString(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return "";
+                
+                const now = new Date();
+                const dateMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                
+                const diffTime = nowMidnight - dateMidnight;
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) return "today";
+                if (diffDays === 1) return "yesterday";
+                if (diffDays < 7) return `${diffDays} days ago`;
+                if (diffDays < 30) {
+                    const weeks = Math.floor(diffDays / 7);
+                    return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+                }
+                const months = Math.floor(diffDays / 30);
+                return `${months} month${months > 1 ? 's' : ''} ago`;
+            } catch (e) {
+                return "";
+            }
+        }
+
+        // Safe Text-Node Highlighting Engine
+        function highlightTextNodes(element, query) {
+            if (!query) return;
+            const regex = new RegExp(`(${query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+            
+            const nodesToReplace = [];
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.parentNode.tagName === 'SCRIPT' || node.parentNode.tagName === 'STYLE' || node.parentNode.tagName === 'MARK') continue;
+                if (node.nodeValue.match(regex)) {
+                    nodesToReplace.push(node);
+                }
+            }
+            
+            nodesToReplace.forEach(textNode => {
+                const parent = textNode.parentNode;
+                const html = textNode.nodeValue.replace(regex, '<mark class="search-highlight">$1</mark>');
+                const tempSpan = document.createElement('span');
+                tempSpan.innerHTML = html;
+                
+                while (tempSpan.firstChild) {
+                    parent.insertBefore(tempSpan.firstChild, textNode);
+                }
+                parent.removeChild(textNode);
+            });
+        }
+
+        // Card click selection wrapper
+        window.handleCardClick = function(event, id) {
+            const ignoreTags = ['A', 'BUTTON', 'INPUT', 'LABEL', 'I'];
+            const targetTag = event.target.tagName;
+            
+            if (ignoreTags.includes(targetTag) || event.target.closest('a') || event.target.closest('button') || event.target.closest('.select-checkbox-wrapper')) {
+                return;
+            }
+            toggleSelect(id);
+        }
+
         // Render feed updates
         function renderFeed() {
             const filtered = releases.filter(item => matchesFilter(item) && matchesSearch(item));
+            
+            // Update results bar count
+            const resultsCountEl = document.getElementById('resultsCount');
+            if (resultsCountEl) {
+                resultsCountEl.innerText = `Showing ${filtered.length} of ${releases.length} updates`;
+            }
             
             if (filtered.length === 0) {
                 feedContainer.innerHTML = `
@@ -1308,10 +1441,10 @@
                 const categoryIcon = getCategoryIcon(item.category);
                 
                 return `
-                    <article class="card ${isSelected ? 'selected' : ''}" id="card-${item.id}">
+                    <article class="card ${isSelected ? 'selected' : ''}" id="card-${item.id}" onclick="handleCardClick(event, '${item.id}')">
                         <div class="card-header">
                             <div class="card-date">
-                                <i class="fa-regular fa-calendar"></i> ${item.date}
+                                <i class="fa-regular fa-calendar"></i> ${item.date} <span class="relative-date" style="font-size: 0.8rem; font-weight: 500; opacity: 0.6; margin-left: 0.25rem;">(${getRelativeTimeString(item.date)})</span>
                             </div>
                             <div class="card-header-actions">
                                 <span class="category-badge ${badgeClass}">
@@ -1344,6 +1477,13 @@
                     </article>
                 `;
             }).join('');
+
+            // Highlight matches if search active
+            if (searchQuery.trim()) {
+                document.querySelectorAll('#feedContainer .card-body').forEach(cardBody => {
+                    highlightTextNodes(cardBody, searchQuery.trim());
+                });
+            }
         }
 
         // Selection Toggle
@@ -1435,6 +1575,7 @@
             tweetTextarea.value = text;
             updateCharCount();
             tweetModal.classList.add('show');
+            setTimeout(() => tweetTextarea.focus(), 100);
         }
 
         // Close modal
@@ -1446,13 +1587,82 @@
         function updateCharCount() {
             const len = tweetTextarea.value.length;
             charCounter.innerText = `${len} / 280`;
+            const autoTrimBtn = document.getElementById('btnAutoTrim');
             
             if (len > 280) {
                 charCounter.classList.add('counter-exceeded');
                 btnPostTweet.disabled = true;
+                if (autoTrimBtn) autoTrimBtn.style.display = 'block';
             } else {
                 charCounter.classList.remove('counter-exceeded');
                 btnPostTweet.disabled = false;
+                if (autoTrimBtn) autoTrimBtn.style.display = 'none';
+            }
+        }
+
+        // Auto-Trim digest or single tweet to fit X's 280-char limit
+        window.autoTrimTweet = function() {
+            let text = tweetTextarea.value;
+            if (text.length <= 280) return;
+            
+            // Check if digest format
+            if (text.includes("Updates Digest")) {
+                const lines = text.split("\n");
+                let listLines = [];
+                let headerLines = [];
+                let footerLines = [];
+                let inList = false;
+                
+                lines.forEach(line => {
+                    if (line.match(/^\d+\./)) {
+                        listLines.push(line);
+                        inList = true;
+                    } else if (inList) {
+                        footerLines.push(line);
+                    } else {
+                        headerLines.push(line);
+                    }
+                });
+                
+                // Truncate individual items line-by-line starting with the longest
+                let attempts = 0;
+                while (attempts < 100) {
+                    const compiled = [
+                        ...headerLines,
+                        ...listLines,
+                        ...footerLines
+                    ].join("\n");
+                    
+                    if (compiled.length <= 280) {
+                        tweetTextarea.value = compiled;
+                        updateCharCount();
+                        return;
+                    }
+                    
+                    // Find the longest item line to trim
+                    let longestIndex = -1;
+                    let longestLength = 0;
+                    listLines.forEach((l, idx) => {
+                        if (l.length > longestLength) {
+                            longestLength = l.length;
+                            longestIndex = idx;
+                        }
+                    });
+                    
+                    if (longestIndex !== -1 && listLines[longestIndex].length > 15) {
+                        const line = listLines[longestIndex];
+                        listLines[longestIndex] = line.slice(0, line.length - 5) + "...";
+                    } else {
+                        break;
+                    }
+                    attempts++;
+                }
+            }
+            
+            // Fallback: raw slicing to 280 characters
+            if (tweetTextarea.value.length > 280) {
+                tweetTextarea.value = tweetTextarea.value.slice(0, 277) + "...";
+                updateCharCount();
             }
         }
 
@@ -1538,12 +1748,28 @@
             document.body.removeChild(link);
         }
 
-        // Show Toast
-        function showToast() {
-            successToast.classList.add('show');
+        // Show Toast (Supports type success and error)
+        function showToast(message = 'Action successful', type = 'success') {
+            const toast = document.getElementById('successToast');
+            const icon = toast.querySelector('i');
+            const text = toast.querySelector('span');
+            
+            text.innerText = message;
+            
+            if (type === 'success') {
+                toast.style.background = 'rgba(16, 185, 129, 0.95)';
+                toast.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                icon.className = 'fa-solid fa-circle-check';
+            } else {
+                toast.style.background = 'rgba(239, 68, 68, 0.95)';
+                toast.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                icon.className = 'fa-solid fa-circle-exclamation';
+            }
+            
+            toast.classList.add('show');
             setTimeout(() => {
-                successToast.classList.remove('show');
-            }, 3000);
+                toast.classList.remove('show');
+            }, 4000);
         }
 
         // Event listeners
@@ -1575,10 +1801,22 @@
             renderFeed();
         });
 
-        // Keyboard close modal
+        // Global Keyboard Shortcuts & Modal close hooks
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && tweetModal.classList.contains('show')) {
-                closeModal();
+            // Close modal or clear selection with Escape
+            if (e.key === 'Escape') {
+                if (tweetModal.classList.contains('show')) {
+                    closeModal();
+                } else {
+                    clearSelection();
+                }
+            }
+            
+            // Ctrl + Enter inside composer text area to post/share
+            if (e.key === 'Enter' && e.ctrlKey && document.activeElement === tweetTextarea) {
+                if (!btnPostTweet.disabled) {
+                    postTweet();
+                }
             }
         });
 

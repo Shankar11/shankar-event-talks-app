@@ -30,6 +30,7 @@ Checklist of project setup, requirements implementation, environment configurati
   - [x] Build Tweet Composer modal with character limit validation and X/Twitter intent sharing
   - [x] Add "Copy to Clipboard" button on cards and "Export to CSV" button next to refresh control
   - [x] Add theme toggler (light/dark mode) button and CSS variables overrides
+  - [x] Implement 9 premium UX improvements (result indicators, relative dates, safe HTML search highlighting, card selection wrappers, toast overrides, responsive tables, auto-trim scissors, auto-focus, keyboard event hooks)
 
 - [x] **Environment Configuration**
   - [x] Build local virtual environment (`.venv`) using `uv venv`
