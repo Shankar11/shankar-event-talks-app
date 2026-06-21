@@ -1,0 +1,37 @@
+# BigQuery Release Notes Web App Checklist
+
+Checklist of project setup, requirements implementation, environment configuration, and verification steps.
+
+---
+
+## 📋 Task Checklist
+
+- [x] **Project Scoping and Setup**
+  - [x] View and analyze raw XML feed format ([bigquery_release_notes.xml](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/bigquery_release_notes.xml))
+  - [x] Create [requirements.txt](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/requirements.txt) listing server dependencies
+  - [x] Create [.gitignore](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/.gitignore) to exclude local cache and environment files
+
+- [x] **Backend Implementation ([app.py](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/app.py))**
+  - [x] Connect feed parser and BeautifulSoup parsing engine
+  - [x] Parse entries into micro-updates by `<h3>` tags
+  - [x] Implement standard link sanitization (`target="_blank"`)
+  - [x] Set up local cache logic (1-hour memory TTL cache)
+  - [x] Add `/api/releases` JSON endpoints with force refresh (`?refresh=true`) support
+
+- [x] **Frontend Design ([templates/index.html](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/templates/index.html))**
+  - [x] Style dark mode layout (Slate-Obsidian gradient, glassmorphic panels)
+  - [x] Add Search inputs and Category filter buttons (Features, Announcements, Issues, Deprecations)
+  - [x] Style glowing animated checklist toggles for selecting updates
+  - [x] Implement animated loading skeletons during fetches
+  - [x] Implement Floating Selection Bar / Selected updates drawer
+  - [x] Build Tweet Composer modal with character limit validation and X/Twitter intent sharing
+
+- [x] **Environment Configuration**
+  - [x] Build local virtual environment (`.venv`) using `uv venv`
+  - [x] Install dependencies inside `.venv` using `uv pip install`
+  - [x] Run Flask server inside virtual environment context (running on `http://127.0.0.1:5000`)
+
+---
+
+## 📝 Ongoing / Next Steps
+- [ ] Review and debug bugs inside [demo_bad_code.py](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/demo_bad_code.py)
