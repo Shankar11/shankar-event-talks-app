@@ -42,8 +42,13 @@ Checklist of project setup, requirements implementation, environment configurati
   - [x] Create initial commit on `main` branch
   - [x] Push project codebase to remote GitHub repository [shankar-event-talks-app](https://github.com/Shankar11/shankar-event-talks-app.git)
 
+- [x] **Invoice Data Processing**
+  - [x] Read and parse PNG images inside [invoice-processing/](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/invoice-processing/)
+  - [x] Extract key invoice parameters to [extracted_invoice_data.md](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/extracted_invoice_data.md)
+
 ---
 
 ## 📝 Ongoing / Next Steps
 - [ ] Review and debug bugs inside [demo_bad_code.py](file:///F:/LearnWS/AntiGravityIDE/my-first-proj/demo_bad_code.py)
+
 
